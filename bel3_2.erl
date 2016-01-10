@@ -30,8 +30,17 @@ valid(_, _, _, _) -> true.
 % Aufruf duplicate(Liste1,Liste2)
 % Liste1 - Erste Liste
 % Liste2 - Zweite Liste
+contains(El,[]) -> false;
+contains(El,[L|LS]) when El == L -> true;
+contains(El,[L|LS]) -> contains(El,LS).
+
 -spec duplicate(list(non_neg_integer()),list(non_neg_integer())) -> true | false.
-duplicate(Liste1,Liste2 )-> toBeDefined.
+duplicate(L1,L2) when (L1 == []) or (L2 == []) -> false;
+duplicate([L|LS],L2) ->
+	case contains(L,L2) of
+		true -> true;
+		_ -> duplicate(LS,L2)
+	end.
 
 % combineRows setzt eine beliebige Anzahl von Reihen, die vorab berechnet werden, zusammen
 % Dabei wird ueberprueft, ob sich doppelte Elemente innerhalb der Reihen befinden.
