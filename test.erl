@@ -32,3 +32,19 @@ nhighest(N, Elements, Acc) -> H = highest(0, Elements), [H|nhighest(N - 1, Eleme
 print (P)->io:write(P),io:fwrite("~n"),true.
 
 sum(List) -> lists:foldl(fun(X, Sum) -> X + Sum end, 0, List).
+
+% Funktion, die ermittelt, ob sich in zwei Listen doppelte Elemente befinden
+% Aufruf duplicate(Liste1,Liste2)
+% Liste1 - Erste Liste
+% Liste2 - Zweite Liste
+contains(El,[]) -> false;
+contains(El,[L|LS]) when El == L -> true;
+contains(El,[L|LS]) -> contains(El,LS).
+
+-spec duplicate(list(non_neg_integer()),list(non_neg_integer())) -> true | false.
+duplicate(L1,L2) when (L1 == []) or (L2 == []) -> false;
+duplicate([L|LS],L2) ->
+	case contains(L,L2) of
+		true -> true;
+		_ -> duplicate(LS,L2)
+	end.
