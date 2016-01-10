@@ -48,3 +48,27 @@ duplicate([L|LS],L2) ->
 		true -> true;
 		_ -> duplicate(LS,L2)
 	end.
+
+% combineRows setzt eine beliebige Anzahl von Reihen, die vorab berechnet werden, zusammen
+% Dabei wird ueberprueft, ob sich doppelte Elemente innerhalb der Reihen befinden.
+% Aufruf: combineRows (Col, Max, Value)
+% Col - Anzahl der Reihen, die berechnet werden sollen
+% Max - Anzahl der Elemente pro Zeile
+% Value - Wert der Summe der Zeile
+% Elems - Elemente aus denen gewaehlt werden soll
+
+-spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
+combineRows(0, _, _, _) -> [[]];
+combineRows(Col,Max,Value, Elements) -> [X++[Y]||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, validCR(X++[Y])].
+
+validCR([]) -> true;
+validCR([X|XS]) -> case helperValidCR(X, XS) of
+  true -> validCR(XS);
+  _ -> false
+end.
+
+helperValidCR(El, []) -> true;
+helperValidCR(El, [L|LS]) -> case duplicate(El, L) of
+  true -> false;
+  _ -> helperValidCR(El, LS)
+end.

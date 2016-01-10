@@ -52,7 +52,21 @@ duplicate([L|LS],L2) ->
 % Elems - Elemente aus denen gewaehlt werden soll
 
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
-combineRows(Col,Max,Value, Elems) -> toBeDefined.
+combineRows(0, _, _, _) -> [[]];
+combineRows(Col,Max,Value, Elements) -> [X++[Y]||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, validCR(X++[Y])].
+
+validCR([]) -> true;
+validCR([X|XS]) -> case helperValidCR(X, XS) of
+  true -> validCR(XS);
+  _ -> false
+end.
+
+helperValidCR(El, []) -> true;
+helperValidCR(El, [L|LS]) -> case duplicate(El, L) of
+  true -> false;
+  _ -> helperValidCR(El, LS)
+end.
+
 
 % calcSquares berechnet aus einem Teilquadrat alle moeglichen gueltigen Quadrate, die sich bilden lassen
 % Aufruf: calcSquares(Part, Max, Value)
