@@ -74,8 +74,9 @@ end.
 % Max - Anzahl der Elemente pro Zeile/Spalte
 % Value - Wert der Summe einer Zeile
 -spec calcSquares(list(non_neg_integer()), non_neg_integer(), non_neg_integer()) -> list(list(non_neg_integer())).
-calcSquares(Part, Max, Value)-> toBeDefined.
-
+calcSquares(Part, Max, Value) -> Elements = combineRows((Max * Max - length(Part)) div Max, Max, Value, row(Max, Value, lists:seq(1, Max * Max)--Part)),
+  [lists:flatten(Part++Res)||Res <- Elements].
+%%% combineRows with reduced amount of rows to be combined. Elements
 
 % combineSquares ermittelt aus allen Teilquadraten die gueltige Loesung
 % Aufruf: combineSquares(Parts, Max, Value)
@@ -100,13 +101,13 @@ magicsquare(Max, Mode)->
 	statistics(runtime),
 	Result= case Mode of
 			debug ->  case Max of
-					3-> Parts= combineRows(2,3,15), combineSquares(Parts,3,15,0);
-					4-> Parts= combineRows(1,4,34), combineSquares(Parts,4,34,0);
+					3-> Parts= combineRows(2,3,15, lists:seq(1, 9)), combineSquares(Parts,3,15,0);
+					4-> Parts= combineRows(1,4,34, lists:seq(1, 16)), combineSquares(Parts,4,34,0);
 					_-> error
 				end;
 			_ -> case Max of
-					3-> Parts= combineRows(2,3,15), combineSquares(Parts,3,15);
-					4-> Parts= combineRows(2,4,34), combineSquares(Parts,4,34);
+					3-> Parts= combineRows(2,3,15, lists:seq(1, 9)), combineSquares(Parts,3,15);
+					4-> Parts= combineRows(2,4,34, lists:seq(1, 9)), combineSquares(Parts,4,34);
 					_-> error
 				end
 	end,
@@ -135,10 +136,10 @@ distribMS(Max, PCount)->
 	statistics(runtime),
 	Result=
 		case Max of
-			3 -> Value=15, PSquare=combineRows(1,Max,Value),
+			3 -> Value=15, PSquare=combineRows(1,Max,Value, lists:seq(1, 9)),
 				spawn_at(PCount, node(), PSquare, 3, Value, init_local),
 				loop_gather(PCount,[]);
-			4 -> Value=34, PSquare=combineRows(2,Max,Value),
+			4 -> Value=34, PSquare=combineRows(2,Max,Value, lists:seq(1, 9)),
 				spawn_at(PCount, node(), PSquare, 4, Value, init_local),
 				loop_gather(PCount,[]);
 			_ ->  [[]]

@@ -6,7 +6,7 @@ row(Max, Value, Elements) -> row(Max, Value, Elements,  Max).
 row(0, _, _, _) -> [[]];
 %row(Max, Value, Elements) -> [X++[Y]||X <- row(Max - 1, Value, Elements),
 %                Y <- Elements--X, valid(Max, Value, Elements--X--[Y])].
-row(Max, Value, Elements, Ref) -> print(Ref), [X++[Y]||X <- row(Max - 1, Value, Elements, Ref), Y<-Elements--X, valid(Max, Value, X++[Y], Ref)].
+row(Max, Value, Elements, Ref) -> [X++[Y]||X <- row(Max - 1, Value, Elements, Ref), Y<-Elements--X, valid(Max, Value, X++[Y], Ref)].
 
 
 
@@ -72,3 +72,12 @@ helperValidCR(El, [L|LS]) -> case duplicate(El, L) of
   true -> false;
   _ -> helperValidCR(El, LS)
 end.
+
+-spec calcSquares(list(non_neg_integer()), non_neg_integer(), non_neg_integer()) -> list(list(non_neg_integer())).
+calcSquares(Part, Max, Value) -> Elements = combineRows((Max * Max - length(Part)) div Max, Max, Value, row(Max, Value, lists:seq(1, Max * Max)--Part)),
+  [lists:flatten(Part++Res)||Res <- Elements].
+
+
+%%% combineRows with reduced amount of rows to be combined. Elements
+%%% Number of Rows to generate = (Max * Max - length(Part)) div Max
+%%% Elements to make the Rows with: lists:seq(1, Max * Max) -- Part
