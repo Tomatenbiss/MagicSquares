@@ -52,6 +52,7 @@ duplicate([L|LS],L2) ->
 % Elems - Elemente aus denen gewaehlt werden soll
 
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
+combineRows(Col, Max, Value) -> combineRows(Col, Max, Value, row(3,15,lists:seq(1, Max * Max))).
 combineRows(0, _, _, _) -> [[]];
 combineRows(Col,Max,Value, Elements) -> [X++[Y]||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, validCR(X++[Y])].
 
