@@ -31,9 +31,9 @@ sum(List) -> lists:foldl(fun(X, Sum) -> X + Sum end, 0, List).
 % Aufruf duplicate(Liste1,Liste2)
 % Liste1 - Erste Liste
 % Liste2 - Zweite Liste
-contains(El,[]) -> false;
-contains(El,[L|LS]) when El == L -> true;
-contains(El,[L|LS]) -> contains(El,LS).
+contains(_,[]) -> false;
+contains(El,[L|_]) when El == L -> true;
+contains(El,[_|LS]) -> contains(El,LS).
 
 -spec duplicate(list(non_neg_integer()),list(non_neg_integer())) -> true | false.
 duplicate(L1,L2) when (L1 == []) or (L2 == []) -> false;
@@ -52,7 +52,7 @@ duplicate([L|LS],L2) ->
 % Elems - Elemente aus denen gewaehlt werden soll
 
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
-combineRows(Col, Max, Value) -> combineRows(Col, Max, Value, row(3,15,lists:seq(1, Max * Max))).
+combineRows(Col, Max, Value) -> combineRows(Col, Max, Value, row(Max,Value,lists:seq(1, Max * Max))).
 combineRows(0, _, _, _) -> [[]];
 combineRows(Col,Max,Value, Elements) -> [X++[Y]||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, validCR(X++[Y])].
 
@@ -62,7 +62,7 @@ validCR([X|XS]) -> case helperValidCR(X, XS) of
   _ -> false
 end.
 
-helperValidCR(El, []) -> true;
+helperValidCR(_, []) -> true;
 helperValidCR(El, [L|LS]) -> case duplicate(El, L) of
   true -> false;
   _ -> helperValidCR(El, LS)
@@ -79,18 +79,56 @@ calcSquares(Part, Max, Value) -> Elements = combineRows((Max * Max - length(Part
   [lists:flatten(Part++Res)||Res <- Elements].
 %%% combineRows with reduced amount of rows to be combined. Elements
 
-%iterCalcedSquares(List) -> iterCalcedSquares(List, 1, length(List)).
-%iterCalcedSquares(List, )
 
-createDict(Max) -> dict:append(sideDia, 0, dict:append(mainDia, 0, createDictCols(Max, Max ,dict:new()))).
+%%% Expects a List of Calced Squares..
+evalSquares([], _, _) -> [];
+evalSquares([X|XS], Max, Value) -> D = iterCalcedSquares(X, Max), case validSquare(D, Max, Value) of
+  true -> [X|evalSquares(XS, Max, Value)];
+  _ -> evalSquares(XS, Max, Value)
+end.
 
-createDictCols(0, _, D) -> D;
-createDictCols(C, Max, D) -> createDictCols(C-1, Max, dict:append(C, 0, D)).
+
+validSquare(D, Max, Value) -> Vals = lists:map(fun({_, Y}) -> Y end, dict:to_list(D)),
+                         N = lists:foldl(fun(X, N) when X == Value -> N + 1; (_, N) -> N end, 0, Vals),
+                         case (N == Max + 2) of
+                           true ->  true;
+                           _ -> false
+                         end.
+
+
+iterCalcedSquares(List, Max) -> iterCalcedSquares(List, 1, Max * Max, Max, createDict(Max)).
+iterCalcedSquares([], _, _, _, D) -> D;
+iterCalcedSquares([X|XS], C, Len, Max, D) -> Dict = updateCols(C, Max, X, updateMD(C, Max, X, updateSD(C, Max, X, D))),
+                                             iterCalcedSquares(XS, C+1, Len, Max, Dict).
+
+updateCols(C, Max, X, D) -> Key = C rem Max,
+                         updateDict(Key, D, X).
+
+updateMD(C, Max, X, D) -> case mainDia(C, Max) of
+  true -> updateDict(mainDia, D, X);
+  _ -> D
+end.
+
+updateSD(C, Max, X, D) -> case getSideDia(C, Max) of
+  true -> updateDict(sideDia, D, X);
+  _ -> D
+end.
+
+updateDict(Key, D, X) -> Temp = Temp = dict:fetch(Key, D),
+                     Dict = dict:store(Key, Temp + X, D).
+createDict(Max) -> dict:store(sideDia, 0, dict:store(mainDia, 0, createDictCols(0, Max ,dict:new()))).
+
+createDictCols(Max, Max, D) -> D;
+createDictCols(C, Max, D) -> createDictCols(C+1, Max, dict:store(C, 0, D)).
 
 % Diagnole
-getSideDia(C,Max) -> getSideDia(C,Max,0).
-getSideDia(C,Max,Val) when C - Max + Val == 0 -> true;
-getSideDia(C,Max,Val) -> false.
+getSideDia(C, Max) when (C == Max) -> true;
+getSideDia(C, Max) when (C == Max * Max) -> false;
+getSideDia(C, Max) when (C > Max) -> case ((C - Max) rem (Max - 1) == 0) of
+  true -> true;
+  _ -> false
+end;
+getSideDia(_, _) -> false.
 
 mainDia(C, Max) -> case (C rem (Max + 1) == 1) of
   true -> true;
@@ -308,4 +346,5 @@ monitorHosts(HostList)->
 	end.
 
 
-main() -> createDict(3).
+main() -> D = createDict(3),
+          evalSquares(calcSquares([4,9,2], 3, 15), 3, 15).
