@@ -79,6 +79,19 @@ calcSquares(Part, Max, Value) -> Elements = combineRows((Max * Max - length(Part
   [lists:flatten(Part++Res)||Res <- Elements].
 %%% combineRows with reduced amount of rows to be combined. Elements
 
+%iterCalcedSquares(List) -> iterCalcedSquares(List, 1, length(List)).
+%iterCalcedSquares(List, )
+
+createDict(Max) -> dict:append(sideDia, 0, dict:append(mainDia, 0, createDictCols(Max, Max ,dict:new()))).
+
+createDictCols(0, _, D) -> D;
+createDictCols(C, Max, D) -> createDictCols(C-1, Max, dict:append(C, 0, D)).
+
+mainDia(C, Max) -> case (C rem (Max + 1) == 1) of
+  true -> true;
+  _ -> false
+end.
+
 % combineSquares ermittelt aus allen Teilquadraten die gueltige Loesung
 % Aufruf: combineSquares(Parts, Max, Value)
 % Parts - Alle Teilquadrate
@@ -288,3 +301,6 @@ monitorHosts(HostList)->
 			monitorHosts(lists:delete(NodeName, HostList));
 		stop -> ok
 	end.
+
+
+main() -> createDict(3).
