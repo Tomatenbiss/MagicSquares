@@ -81,3 +81,7 @@ calcSquares(Part, Max, Value) -> Elements = combineRows((Max * Max - length(Part
 %%% combineRows with reduced amount of rows to be combined. Elements
 %%% Number of Rows to generate = (Max * Max - length(Part)) div Max
 %%% Elements to make the Rows with: lists:seq(1, Max * Max) -- Part
+
+divList(List, N) -> lists:map(fun({_,Y}) -> Y end, dict:to_list(divList(List, N, dict:new(), 0))).
+divList([],_,D,_) -> D;
+divList([X|XS], N, D, C) -> divList(XS, N, dict:append(C rem N, X, D), C+1).

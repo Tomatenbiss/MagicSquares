@@ -76,7 +76,7 @@ end.
 % Value - Wert der Summe einer Zeile
 -spec calcSquares(list(non_neg_integer()), non_neg_integer(), non_neg_integer()) -> list(list(non_neg_integer())).
 calcSquares(Part, Max, Value) -> Elements = combineRows((Max * Max - length(Part)) div Max, Max, Value, row(Max, Value, lists:seq(1, Max * Max)--Part)),
-  [lists:flatten(Part++Res)||Res <- Elements].
+  [Part++Res||Res <- Elements].
 %%% combineRows with reduced amount of rows to be combined. Elements
 
 
@@ -348,3 +348,7 @@ monitorHosts(HostList)->
 
 main() -> D = createDict(3),
           evalSquares(calcSquares([4,9,2], 3, 15), 3, 15).
+
+divList(List, N) -> lists:map(fun({_,Y}) -> Y end, dict:to_list(divList(List, N, dict:new(), 0))).
+divList([],_,D,_) -> D;
+divList([X|XS], N, D, C) -> divList(XS, N, dict:append(C rem N, X, D), C+1).
