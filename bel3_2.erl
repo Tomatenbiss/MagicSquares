@@ -43,6 +43,7 @@ duplicate([L|LS],L2) ->
 		_ -> duplicate(LS,L2)
 	end.
 
+
 % combineRows setzt eine beliebige Anzahl von Reihen, die vorab berechnet werden, zusammen
 % Dabei wird ueberprueft, ob sich doppelte Elemente innerhalb der Reihen befinden.
 % Aufruf: combineRows (Col, Max, Value)
@@ -54,19 +55,21 @@ duplicate([L|LS],L2) ->
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
 combineRows(Col, Max, Value) -> combineRows(Col, Max, Value, row(Max,Value,lists:seq(1, Max * Max))).
 combineRows(0, _, _, _) -> [[]];
-combineRows(Col,Max,Value, Elements) -> [X++[Y]||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, validCR(X++[Y])].
+%combineRows(Col,Max,Value, Elements) -> [X++[Y]||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, validCR(X++[Y])].
+combineRows(Col,Max,Value,Elements) -> [X++Y||X<-combineRows(Col-1, Max, Value, Elements), Y<-Elements--X, not(duplicate(X,Y))] .
 
-validCR([]) -> true;
-validCR([X|XS]) -> case helperValidCR(X, XS) of
-  true -> validCR(XS);
-  _ -> false
-end.
 
-helperValidCR(_, []) -> true;
-helperValidCR(El, [L|LS]) -> case duplicate(El, L) of
-  true -> false;
-  _ -> helperValidCR(El, LS)
-end.
+%validCR([]) -> true;
+%validCR([X|XS]) -> case helperValidCR(X, XS) of
+  %true -> validCR(XS);
+  % -> false
+%end.
+
+%helperValidCR(_, []) -> true;
+%helperValidCR(El, [L|LS]) -> case duplicate(El, L) of
+  %true -> false;
+  %_ -> helperValidCR(El, LS)
+%end.
 
 
 % calcSquares berechnet aus einem Teilquadrat alle moeglichen gueltigen Quadrate, die sich bilden lassen
