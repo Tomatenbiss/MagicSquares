@@ -87,6 +87,11 @@ createDict(Max) -> dict:append(sideDia, 0, dict:append(mainDia, 0, createDictCol
 createDictCols(0, _, D) -> D;
 createDictCols(C, Max, D) -> createDictCols(C-1, Max, dict:append(C, 0, D)).
 
+% Diagnole
+getSideDia(C,Max) -> getSideDia(C,Max,0).
+getSideDia(C,Max,Val) when C - Max + Val == 0 -> true;
+getSideDia(C,Max,Val) -> false.
+
 mainDia(C, Max) -> case (C rem (Max + 1) == 1) of
   true -> true;
   _ -> false
